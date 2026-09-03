@@ -1,0 +1,15 @@
+Write a C program to print a simple detail on the screen. Name, age, department, Student ID,
+Section and University name.
+sol:
+#include <stdio.h>
+
+int main() {
+    printf("Name: Muhammad Mahfooz Kazi\n");
+    printf("Age: 18\n");
+    printf("Department: Computer Science\n");
+    printf("Student ID: 26K-1015\n");
+    printf("Section: BSCS\n");
+    printf("University: FAST-NUCES Karachi\n");
+
+    return 0;
+}
