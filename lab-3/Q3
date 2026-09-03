@@ -1,0 +1,22 @@
+Write a C program that takes a distance in kilometers from the user and converts it to meters and
+centimeters.
+(1 km = 1000 meters, 1 meter = 100 centimeters)
+sol:
+
+#include <stdio.h>
+
+int main()
+{
+    float km, meters, centimeters;
+
+    printf("Enter distance in kilometers: ");
+    scanf("%f", &km);
+
+    meters = km * 1000;
+    centimeters = meters * 100;
+
+    printf("Distance in meters = %.2f\n", meters);
+    printf("Distance in centimeters = %.2f\n", centimeters);
+
+    return 0;
+}
