@@ -3,7 +3,8 @@ Section and University name.
 sol:
 #include <stdio.h>
 
-int main() {
+int main()
+{
     printf("Name: Muhammad Mahfooz Kazi\n");
     printf("Age: 18\n");
     printf("Department: Computer Science\n");
