@@ -1,90 +1,68 @@
 #include <stdio.h>
-#include <string.h>
 
 typedef struct {
-    int roomNo;
-    char status;
-    char name[20];
-    int nights;
-    float rate;
-} Room;
+    char category[12];
+    float amount;
+} Expense;
 
 int main() {
-    FILE *fp = fopen("hotel.txt", "w");
+    FILE *fp = fopen("expenses.txt", "w");
     if (!fp) return 1;
 
-    for (int i = 101; i <= 110; i++) {
-        fprintf(fp, "%3d %c %-20s %2d %8.2f\n", i, 'F', "-", 0, 8000.00);
+    Expense initial[4] = {
+        {"Food", 1200.00},
+        {"Transport", 500.00},
+        {"Books", 850.00},
+        {"Mobile", 300.00}
+    };
+    for (int i = 0; i < 4; i++) {
+        fprintf(fp, "%-12s %9.2f\n", initial[i].category, initial[i].amount);
     }
     fclose(fp);
 
-    fp = fopen("hotel.txt", "rb+");
-    if (!fp) return 1;
+    // Append new expense
+    char cat[12];
+    float amt;
+    printf("Category: ");
+    scanf("%s", cat);
+    printf("Amount: ");
+    scanf("%f", &amt);
 
-    // Check-in (runs twice to match sample run)
-    for (int attempt = 0; attempt < 2; attempt++) {
-        int rNo, nights;
-        char gName[20];
-        printf("Check-in room: ");
-        scanf("%d", &rNo);
-        printf("Name: ");
-        scanf("%s", gName);
-        printf("Nights: ");
-        scanf("%d", &nights);
+    fp = fopen("expenses.txt", "ab");
+    fprintf(fp, "%-12s %9.2f\n", cat, amt);
+    fclose(fp);
 
-        fseek(fp, (rNo - 101) * 39, SEEK_SET);
-        Room r;
-        fscanf(fp, "%d %c %s %d %f", &r.roomNo, &r.status, r.name, &r.nights, &r.rate);
+    // Read latest two & fix
+    fp = fopen("expenses.txt", "rb+");
+    fseek(fp, -2 * 23, SEEK_END);
+    Expense e1, e2;
+    fscanf(fp, "%s %f", e1.category, &e1.amount);
+    fscanf(fp, "%s %f", e2.category, &e2.amount);
+    printf("Latest two: %s %.2f, %s %.2f\n", e1.category, e1.amount, e2.category, e2.amount);
 
-        if (r.status == 'F') {
-            r.status = 'B';
-            strcpy(r.name, gName);
-            r.nights = nights;
+    int entryToFix;
+    float newAmt;
+    printf("Entry to fix: ");
+    scanf("%d", &entryToFix);
+    printf("Correct amount: ");
+    scanf("%f", &newAmt);
 
-            fseek(fp, (rNo - 101) * 39, SEEK_SET);
-            fprintf(fp, "%3d %c %-20s %2d %8.2f\n", r.roomNo, r.status, r.name, r.nights, r.rate);
-            fseek(fp, 0, SEEK_CUR);
-            printf("Room %d booked\n", rNo);
-        } else {
-            printf("Room already booked\n");
-        }
-    }
+    fseek(fp, (entryToFix - 1) * 23, SEEK_SET);
+    fscanf(fp, "%s %f", e1.category, &e1.amount);
+    e1.amount = newAmt;
 
-    // Search using 2D array
+    fseek(fp, (entryToFix - 1) * 23, SEEK_SET);
+    fprintf(fp, "%-12s %9.2f\n", e1.category, e1.amount);
+    fseek(fp, 0, SEEK_CUR);
+
     rewind(fp);
-    char guests[10][21];
-    int rooms[10];
-    Room r;
-    for (int i = 0; i < 10; i++) {
-        fscanf(fp, "%d %c %s %d %f", &rooms[i], &r.status, guests[i], &r.nights, &r.rate);
+    float total = 0;
+    Expense temp;
+    while (fscanf(fp, "%s %f", temp.category, &temp.amount) == 2) {
+        printf("%s %.2f\n", temp.category, temp.amount);
+        total += temp.amount;
     }
-
-    char searchName[21];
-    printf("Search name: ");
-    scanf("%s", searchName);
-
-    for (int i = 0; i < 10; i++) {
-        if (strcmp(guests[i], searchName) == 0) {
-            printf("%s is in room %d\n", guests[i], rooms[i]);
-        }
-    }
-
-    // Check-out
-    int outRoom;
-    printf("Check-out room: ");
-    scanf("%d", &outRoom);
-
-    fseek(fp, (outRoom - 101) * 39, SEEK_SET);
-    fscanf(fp, "%d %c %s %d %f", &r.roomNo, &r.status, r.name, &r.nights, &r.rate);
-    printf("Bill: %d x %.2f = %.2f\n", r.nights, r.rate, r.nights * r.rate);
-
-    r.status = 'F';
-    strcpy(r.name, "-");
-    r.nights = 0;
-
-    fseek(fp, (outRoom - 101) * 39, SEEK_SET);
-    fprintf(fp, "%3d %c %-20s %2d %8.2f\n", r.roomNo, r.status, r.name, r.nights, r.rate);
-
+    printf("Total: %.2f\n", total);
     fclose(fp);
     return 0;
 }
